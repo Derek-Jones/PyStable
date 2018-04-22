@@ -118,14 +118,15 @@ int compare (const void * a, const void * b)
   return ((*(double *)b < *(double *)a) - (*(double *)a < *(double *)b));
 }
 
-inline void get_original(const gsl_vector *s,double *a,double *b,double *c,double *m)
+void get_original(const gsl_vector *s,double *a,double *b,double *c,double *m)
 {
   *a = M_2_PI*atan(gsl_vector_get(s,0))+1.0;
   *b = M_2_PI*atan(gsl_vector_get(s,1));
   *c = exp(gsl_vector_get(s,2));
   *m = gsl_vector_get(s,3);
 }
-inline void set_expanded(gsl_vector *s,const double a,const double b,const double c,const double m)
+
+void set_expanded(gsl_vector *s,const double a,const double b,const double c,const double m)
 {
   gsl_vector_set(s,0,tan(M_PI_2*(a-1.0)));
   gsl_vector_set(s,1,tan(M_PI_2*b));

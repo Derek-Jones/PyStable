@@ -42,8 +42,8 @@
 #include <gsl/gsl_multifit.h>
 #include "stable.h"
 
-inline double sign(double x) {
-  return ((.0 < x) - (x < .0));
+double sign(double x) {
+  return ((0.0 < x) - (x < 0.0));
 }
 
 double var(const double * data, const int N) {
