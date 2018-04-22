@@ -90,8 +90,10 @@ stable_integration_QAG2(StableDist *dist,double(function)(double, void*),
 
   F.function = function;
   F.params = (void*)dist;
+// printf("before gsl_integration_qag\n");
   gsl_integration_qag(&F, a, b, epsabs, epsrel,
                       limit, 2, dist->gslworkspace, result, abserr);
+// printf("after gsl_integration_qag\n");
 }
 void
 stable_integration_QAG5(StableDist *dist,double(function)(double, void*),
@@ -180,6 +182,7 @@ stable_integration(StableDist *dist,double(function)(double, void*),
                    double epsabs, double epsrel, unsigned short limit,
                    double *result, double *abserr, unsigned short method)
 {
+// printf("stable integration method=%d\n", method);
 
   switch (method)
     {

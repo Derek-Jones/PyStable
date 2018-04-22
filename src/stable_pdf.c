@@ -1,8 +1,3 @@
-/*
- * c_stable_pdf.c, 20 Apr 18
- */
-
-
 /* stable/stable_pdf.c
  * 
  * Code for computing the PDF of an alpha-estable distribution.
@@ -33,6 +28,9 @@
  *  Paseo de Belén 15, 47002 Valladolid, Spain.
  *  jroyval@lpi.tel.uva.es    
  */
+
+// unsigned int integ_eval = 0;  // # of integrand evaluations
+
 #include "stable.h"
 #include "stable_integration.h"
 
@@ -360,13 +358,15 @@ torno al maximo y el resto*/
   *err=sqrt(*err)/pdf;
 
   #ifdef DEBUG
-  fprintf(FINTEG,"%+1.3e % 1.3e % 1.3e",x,pdf,*err);
+  // fprintf(FINTEG,"%+1.3e % 1.3e % 1.3e",x,pdf,*err);
+  fprintf(FINTEG,"% 1.3e % 1.3e",pdf,*err);
   fprintf(FINTEG," %+1.3e %+1.3e %+1.3e %+1.3e %+1.3e",theta[0],theta[1],theta[2],theta[3],theta[4]);
-  fprintf(FINTEG," % 1.3e % 1.3e % 1.3e % 1.3e", pdf1,pdf2,pdf3,fabs(pdf_aux));
+  // fprintf(FINTEG," % 1.3e % 1.3e % 1.3e % 1.3e", pdf1,pdf2,pdf3,fabs(pdf_aux));
+  fprintf(FINTEG," % 1.3e % 1.3e", pdf1,fabs(pdf_aux));
   fprintf(FINTEG," %d %d %d %d %d %d\n",
           warnz[0],warnz[1],warnz[2],integ_eval,aux_eval,
           warnz[0]+warnz[1]+warnz[2]+integ_eval+aux_eval);
-  Rprintf("abstols % 1.3e % 1.3e % 1.3e % 1.3e \n",absTOL,max(pdf1*relTOL,absTOL)*0.5,max((pdf2+pdf1)*relTOL,absTOL)*0.25,max((pdf3+pdf2+pdf1)*relTOL,absTOL)*0.25);
+  // fprintf("abstols % 1.3e % 1.3e % 1.3e % 1.3e \n",absTOL,max(pdf1*relTOL,absTOL)*0.5,max((pdf2+pdf1)*relTOL,absTOL)*0.25,max((pdf3+pdf2+pdf1)*relTOL,absTOL)*0.25);
   #endif
 
   return pdf;
@@ -405,6 +405,8 @@ stable_integration_pdf(StableDist *dist, double(*integrando)(double,void*),
   theta[4] = M_PI_2 - THETA_TH;
   theta[2] = zbrent(integ_aux,(void*)dist,theta[0],theta[4],
                          0.0,1e-9*(theta[4]-theta[0]),&k);
+
+// printf("stable_integration_pdf k=%d\n", k);
 
   switch (k)
     {
@@ -491,6 +493,9 @@ stable_integration_pdf(StableDist *dist, double(*integrando)(double,void*),
   stable_integration(dist,integrando,theta[1],theta[2],
                              absTOL,relTOL,IT_MAX,
                              &pdf_aux,&err_aux,METHOD1);
+
+// printf("after stable_integration 1\n");
+
   pdf1=fabs(pdf_aux);
   *err=err_aux*err_aux;
 
@@ -502,6 +507,9 @@ stable_integration_pdf(StableDist *dist, double(*integrando)(double,void*),
   stable_integration(dist,integrando,theta[2],theta[3],
                              max(pdf1*relTOL,absTOL)*0.25,relTOL,IT_MAX,
                              &pdf_aux,&err_aux,METHOD2);
+
+// printf("after stable_integration 2\n");
+
   pdf2=fabs(pdf_aux);
   *err+=err_aux*err_aux;
   #ifdef DEBUG
@@ -512,6 +520,9 @@ stable_integration_pdf(StableDist *dist, double(*integrando)(double,void*),
   stable_integration(dist,integrando,theta[3],theta[4],
                             max((pdf2+pdf1)*relTOL,absTOL)*0.25,relTOL,IT_MAX,
                             &pdf_aux,&err_aux,METHOD3);
+
+// printf("after stable_integration 3\n");
+
   pdf3=fabs(pdf_aux);
   *err+=err_aux*err_aux;
   #ifdef DEBUG
@@ -524,6 +535,8 @@ stable_integration_pdf(StableDist *dist, double(*integrando)(double,void*),
                              &pdf_aux,&err_aux,STABLE_QAG2);
   *err+=err_aux*err_aux;
 
+// printf("after stable_integration 4\n");
+
 
   //Sumar de menor a mayor contribucion para minimizar error de redondeo.
   pdf=fabs(pdf_aux)+pdf3+pdf2+pdf1;
@@ -534,13 +547,13 @@ stable_integration_pdf(StableDist *dist, double(*integrando)(double,void*),
   *err=sqrt(*err)/pdf;
 
   #ifdef DEBUG
-  fprintf(FINTEG,"%+1.3e % 1.3e % 1.3e",x,pdf,*err);
+  fprintf(FINTEG,"%+1.3e % 1.3e",pdf,*err);
   fprintf(FINTEG," %+1.3e %+1.3e %+1.3e %+1.3e %+1.3e",theta[0],theta[1],theta[2],theta[3],theta[4]);
   fprintf(FINTEG," % 1.3e % 1.3e % 1.3e % 1.3e", pdf1,pdf2,pdf3,fabs(pdf_aux));
   fprintf(FINTEG," %d %d %d %d %d %d\n",
           warnz[0],warnz[1],warnz[2],integ_eval,aux_eval,
           warnz[0]+warnz[1]+warnz[2]+integ_eval+aux_eval);
-  Rprintf("abstols % 1.3e % 1.3e % 1.3e % 1.3e \n",absTOL,max(pdf1*relTOL,absTOL)*0.5,max((pdf2+pdf1)*relTOL,absTOL)*0.25,max((pdf3+pdf2+pdf1)*relTOL,absTOL)*0.25);
+  // fprintf("abstols % 1.3e % 1.3e % 1.3e % 1.3e \n",absTOL,max(pdf1*relTOL,absTOL)*0.5,max((pdf2+pdf1)*relTOL,absTOL)*0.25,max((pdf3+pdf2+pdf1)*relTOL,absTOL)*0.25);
 
   #endif
 
@@ -652,6 +665,7 @@ double stable_pdf_point_STABLE(StableDist *dist, const double x, double *err)
   double x_, xxi;
 
   #ifdef DEBUG
+  printf("stable_pdf_point_STABLE\n");
   int aux_eval=0;
   integ_eval=0;
   #endif
@@ -661,6 +675,8 @@ double stable_pdf_point_STABLE(StableDist *dist, const double x, double *err)
 
   /*Si justo evaluo en o cerca de xi interpolacion lineal*/
   //xxi_th = XXI_TH*(1.0+fabs(dist->alphainvalpha1-1.0));
+
+// printf("xxi %f XXI_TH %f\n", xxi, XXI_TH);
 
   if (fabs(xxi) <= XXI_TH)
     {
@@ -677,8 +693,8 @@ double stable_pdf_point_STABLE(StableDist *dist, const double x, double *err)
  */
 
       #ifdef DEBUG
-      Rprintf("Aproximando x a zeta para alpha = %f, beta = %f, zeta = %f : pdf = %f\n",
-               dist->alpha,dist->beta,dist->xi,pdf);
+      // Rprintf("Aproximando x a zeta para alpha = %f, beta = %f, zeta = %f : pdf = %f\n",
+      //          dist->alpha,dist->beta,dist->xi,pdf);
             
       fprintf(FINTEG,"%1.3e\t%1.3e\t%1.3e\t%1.3e\t%1.3e\t%1.3e\t%d\t%d\t%d\t%d\n",
               x,pdf,*err,0.0,0.0,0.0,aux_eval,0,aux_eval,aux_eval<<1);
@@ -696,6 +712,7 @@ double stable_pdf_point_STABLE(StableDist *dist, const double x, double *err)
       dist->theta0_=dist->theta0;
       dist->beta_=dist->beta;
     }
+
   dist->xxipow=dist->alphainvalpha1*log(fabs(xxi));
 
   /*Si theta0~=-PI/2 intervalo de integración nulo*/
@@ -703,11 +720,12 @@ double stable_pdf_point_STABLE(StableDist *dist, const double x, double *err)
   if (fabs(dist->theta0_+M_PI_2)<2*THETA_TH)
     {
      #ifdef DEBUG
-      Rprintf("Intervalo de integracion nulo\n");
+     printf("Intervalo de integracion nulo\n");
      #endif
 
      return 0.0;
     }
+
   
 //  if (dist->xxipow > XXIPOWMAX)
 //    {
@@ -720,6 +738,8 @@ double stable_pdf_point_STABLE(StableDist *dist, const double x, double *err)
 //  else
 //    {
 //    }
+
+// printf("xxi %f, pdf %f\n", xxi, pdf);
 
   pdf = dist->c2_part/xxi*pdf;
 
@@ -766,11 +786,11 @@ status=stable_setparams(&dist, alpha, beta, sigma, mu, 0);
 if (status == NOVALID)
    return;
 
-// Crashes without this assignment.  To be investigated.
+// Crashes without this assignment.
+// Segmentation fault happens in: stable_integration_QAG2,
+// ie, inside call of gsl_integration_qag
 dist.stable_pdf_point=stable_pdf_point_LEVY;
  
-// stable_pdf(dist, data, rowcount, pdf, err);
-
 for (i=0; i < row_count; i++)
    {
    val=stable_pdf_point(&dist, data[i], err);
