@@ -10,5 +10,5 @@ for f in *.c
 # gcc -Wall -fPIC -c stable_rnd.c -o stable_rnd.o
 # gcc -Wall -fPIC -c stable_cdf.c -o stable_cdf.o
 
-gcc -shared -o libstable.so -lgsl *.o
+gcc *.o -shared -o libstable.so -lgsl -lgslcblas -lm -pthread
 

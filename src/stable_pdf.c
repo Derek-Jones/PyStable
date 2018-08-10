@@ -767,7 +767,7 @@ void stable_pdf(StableDist *dist, const double* x, const unsigned int Nx,
 void c_stable_pdf(double alpha, double beta, double sigma, double mu,
                          void *v_data, unsigned int row_count, void * v_pdf)
 {
-StableDist dist;
+StableDist * dist;
 double * data = (double *) v_data;
 double * pdf = (double *) v_pdf;
 double *err = NULL;
@@ -775,25 +775,27 @@ double val;
 int i,
     status;
  
-// puts("Here we go!");
+///puts("Here we go!");
 /****
 printf("alpha %f, beta %f, sigma %f, mu %f, rowcount %i\n",
 		alpha, beta, sigma, mu, rowcount);
 ***/
 
-status=stable_setparams(&dist, alpha, beta, sigma, mu, 0);
+// status=stable_setparams(&dist, alpha, beta, sigma, mu, 0);
+int parametrization = 0;
+dist = stable_create(alpha, beta, sigma, mu, parametrization);
 
-if (status == NOVALID)
-   return;
+// if (status == NOVALID)
+//   return;
 
 // Crashes without this assignment.
 // Segmentation fault happens in: stable_integration_QAG2,
 // ie, inside call of gsl_integration_qag
-dist.stable_pdf_point=stable_pdf_point_LEVY;
+// dist.stable_pdf_point=stable_pdf_point_LEVY;
  
 for (i=0; i < row_count; i++)
    {
-   val=stable_pdf_point(&dist, data[i], err);
+   val=stable_pdf_point(dist, data[i], err);
    pdf[i]=val;
    }
  

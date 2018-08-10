@@ -39,32 +39,10 @@
 
 unsigned int stable_get_THREADS() { return THREADS; }
 
-#ifdef __WIN32
 void stable_set_THREADS(unsigned int value) {
-/*
-  SYSTEM_INFO sysinfo;
-  GetSystemInfo(&sysinfo);
-  THREADS = (unsigned int)sysinfo.dwNumberOfProcessors;
-  */
-
-  THREADS = 12;
-}
-#else
-#ifdef __unix
-void stable_set_THREADS(unsigned int value) {
-  if (value == 0) THREADS = sysconf(_SC_NPROCESSORS_ONLN);
+  if (value == 0) THREADS = 12;
   else THREADS = value;
-  //printf("\nCPUs = %u\n",THREADS);
 }
-#elif __APPLE__
-void stable_set_THREADS(unsigned int value) {
-  if (value == 0) THREADS = sysconf(_SC_NPROCESSORS_ONLN);
-  else THREADS = value;
-  //printf("\nCPUs = %u\n",THREADS);
-}
-#endif
-#endif
-
 
 int stable_get_METHOD1() { return METHOD1; }
 void stable_set_METHOD1(int value) { METHOD1 = value; }
